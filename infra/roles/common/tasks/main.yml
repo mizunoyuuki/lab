@@ -1,0 +1,38 @@
+# roles/common/tasks/main.yml
+
+- name: パッケージ更新
+  apt: { update_cache: yes, upgrade: dist }
+
+- name: 必要なパッケージ
+  apt:
+    name: [curl, vim, htop, net-tools, nfs-common, open-iscsi]
+    state: present
+
+- name: swapを無効化(kubeletの要件)
+  block:
+    - command: swapoff -a
+      when: ansible_swaptotal_mb > 0
+    - replace:
+        path: /etc/fstab
+        regexp: '^([^#].*\sswap\s.*)'
+        replace: '# \1'
+
+- name: カーネルモジュール
+  copy:
+    dest: /etc/modules-load.d/k8s.conf
+    content: |
+      overlay
+      br_netfilter
+    notify: load modules
+
+- name: sysctl
+  copy:
+    dest: /etc/sysctl.d/99-k8s.conf
+    content: |
+      net.bridge.bridge-nf-call-iptables = 1
+      net.bridge.bridge-nf-call-ip6tables = 1
+      net.ipv4.ip_forward = 1
+  notify: reload sysctl
+
+- name: タイムゾーン
+  timezone: { name: Asia/Tokyo }
