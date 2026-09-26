@@ -1,0 +1,37 @@
+- name: Clean up Docker and Container runtime
+  hosts: all
+  become: true
+
+  tasks:
+    - name: Remove Docker and Container runtime packages
+      ansible.builtin.apt:
+        name:
+          - docker
+          - docker.io
+          - docker-ce
+          - docker-ce-cli
+          - docker-ce-rootless-extras
+          - docker-buildx-plugin
+          - docker-compose-plugin
+          - containerd
+          - containerd.io
+          - runc
+
+        state: absent
+        purge: true
+    - name: Remove Docker data directory
+      ansible.builtin.file:
+        path: /var/lib/docker
+        state: absent
+    - name: Remove containerd data directory
+      ansible.builtin.file:
+        path: /var/lib/containerd
+        state: absent
+    - name: Remove Docker configuration directory
+      ansible.builtin.file:
+        path: /etc/docker
+        state: absent
+    - name: Remove containerd configurationa
+      ansible.builtin.file:
+        path: /etc/containerd
+        state: absent
