@@ -1,0 +1,61 @@
+- name: Create IP forwarding lab
+  hosts: k3s-w1
+  become: true
+
+  tasks:
+    - name: Ensure networking tool are installed
+      ansible.builtin.apt:
+        name:
+          - iproute2
+          - iputils-ping
+        state: present
+
+    - name: Create ns1
+      ansible.builtin.command:
+        cmd: ip netns add ns1
+      args:
+        creates: /var/run/netns/ns1
+
+    - name: Create ns2
+      ansible.builtin.command:
+        cmd: ip netns add ns2
+      args:
+        creates: /var/run/netns/ns2
+
+    - name: Create veth pair for ns1
+      ansible.builtin.shell: |
+        if ! ip link show veth1 > /dev/null 2>&1; then
+          ip link add veth1 type veth peer name veth1-ns
+          ip link set veth1-ns netns ns1
+        fi
+
+    - name: Create veth pair for ns2
+      ansible.builtin.shell: |
+        if ! ip link show veth2 > /dev/null 2>&1; then
+          ip link add veth2 type veth peer name veth2-ns
+          ip link set veth2-ns netns ns2
+        fi
+
+    - name: Configure host side of veth1
+      ansible.builtin.shell: |
+        ip addr replace 10.10.1.1/24 dev veth1
+        ip link set veth1 up
+
+    - name: Configure host side of veth2
+      ansible.builtin.shell: |
+        ip addr replace 10.10.2.1/24 dev veth2
+        ip link set veth2 up
+
+    - name: Configure ns1 
+      ansible.builtin.shell: |
+        ip netns exec ns1 ip addr replace 10.10.1.2/24 dev veth1-ns
+        ip netns exec ns1 ip link set veth1-ns up
+        ip netns exec ns1 ip link set lo up
+        ip netns exec ns1 ip route replace 10.10.2.0/24 via 10.10.1.1
+
+    - name: Configure ns2
+      ansible.builtin.shell: |
+        ip netns exec ns2 ip addr replace 10.10.2.2/24 dev veth2-ns
+        ip netns exec ns2 ip link set veth2-ns up
+        ip netns exec ns2 ip link set lo up
+        ip netns exec ns2 ip route replace 10.10.1.0/24 via 10.10.2.1
