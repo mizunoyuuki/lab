@@ -1,0 +1,40 @@
+containerdをctrコマンドから触ってコンテナを起動する。
+```
+sudo ctr images pull docker.io/library/ubuntu:24.04
+sudo ctr run --rm -t docker.io/library/ubuntu:24.04 ubuntu-test /bin/bash
+```
+
+containerdでは、実はContainerとTaskを分けて考える。
+
+Container:
+= 設定・メタデータ
+
+Task
+= 実際に動いているLinuxプロセス
+
+```
+sudo ctr containers create docker.io/library/ubuntu:24.04 ubuntu-test
+```
+
+を実行しただけでは、まだubuntuのbin/bashは実行されていない。
+単にcontainerdの中に、
+```
+名前: ubuntu-test
+イメージ: ubuntu:24.04
+rootfs: ...
+設定: ...
+```
+
+というコンテナオブジェクトが登録されただけ。
+
+cri, ctr
+
+CRI = Container Runtime Interface
+- Kubernetesがcontainerdや CRI-Oみたいなコンテナランタイムと話すための標準インターフェース
+- 実体としては、gRPC APIを叩くCLI
+- crictlはこのCRIを叩くCLI
+
+CTR
+- containerdに付属するCLI
+- 名前は実質　containerd の controll/client toolだと思う
+

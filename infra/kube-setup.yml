@@ -5,3 +5,4 @@
   roles:
     - common
     - kubernetes_prereqs
+    - containerd
