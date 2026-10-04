@@ -1,0 +1,24 @@
+- name: Initialize Kubernetes control plane
+  ansible.builtin.command:
+    cmd: >
+      kubeadm init
+      --apiserver-advertise-address=192.168.10.11
+      --pod-network-cidr=10.10.0.0/16
+    creates: /etc/kubernetes/admin.conf
+
+- name: Create kubeconfig directory
+  ansible.builtin.file:
+    path: /home/mizuno/.kube
+    state: directory
+    owner: mizuno
+    group: mizuno
+    mode: "0700"
+
+- name: Install admin kubeconfig
+  ansible.builtin.copy:
+    src: /etc/kubernetes/admin.conf
+    dest: /home/mizuno/.kube/config
+    remote_src: true
+    owner: mizuno
+    group: mizuno
+    mode: "0600"

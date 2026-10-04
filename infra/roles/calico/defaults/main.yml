@@ -1,0 +1,2 @@
+calico_version: "v3.32.2"
+calico_pod_cidr: "10.10.0.0/16"

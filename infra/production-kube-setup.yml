@@ -1,0 +1,23 @@
+- name: Configure all server
+  hosts: all
+  become: true
+
+  roles:
+    - common
+    - kubernetes_prereqs
+    - containerd
+    - kubernetes
+
+
+- name: Initialize Kubernetes control plane
+  hosts: control_plane
+  become: true
+  roles:
+    - kubeadm_control_plane
+    - calico
+
+- name: Join Kubernetes workers
+  hosts: workers
+  become: true
+  roles:
+    - kubeadm_worker

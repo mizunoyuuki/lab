@@ -1,0 +1,54 @@
+```
+sudo kubeadm init --apiserver-advertise-address=192.168.10.11 --pod-network-cidr=10.10.0.0/16
+```
+
+
+etcdは、etcのデーモンプロセスではない。
+
+kubeコンポーネントたちはHTTPS, TLSで通信してる。
+→証明書をkubeadm initでいろいろ作ってる。
+
+以下でctrコマンドから、containerdがk8s.ioのnamespace(Kubernetes用に管理している)コンテナ群を見ることができる。
+```
+sudo ctr -n k8s.io tasks list
+```
+
+以下で確認できた個数の2倍の数が、k8s.ioのnamespaceで動いている。
+```
+sudo crictl tasks list
+```
+
+-> Pod sandboxってのがあるらしい。
+
+Podを構築するときに動作する？？そういうコンテナのよう。
+
+ちなみん、app container, sidecar containerの二つをPodに入れるとき、Podには一つのIPが割り振られているだけ。
+ポート番号で宛先コンテナを分ける。
+=> 一台のマシンのよう
+
+
+ネットワーク周りの設定には、CNIといういろんなランタイムを使って構築することができる。
+AWSならEKSのAWS VPC CNIってのがあるらしいし。
+
+
+
+今回は、Calicoってのを使ってみる
+
+Calico用の
+kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.32.2/manifests/v1_crd_projectcalico_org.yaml
+kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.32.2/manifests/tigera-operator.yaml
+
+↑これを実行すると
+```
+kubectl get pods
+```
+で
+
+calico-installation.ymlを作成し、以下を実行
+
+```
+(.venv) mizuno@k8-cp:~/study/lab/infra$ kubectl apply -f calico-installation.yml '
+> ^C
+(.venv) mizuno@k8-cp:~/study/lab/infra$ kubectl apply -f calico-installation.yml
+installation.operator.tigera.io/default created
+```
