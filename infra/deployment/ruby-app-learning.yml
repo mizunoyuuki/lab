@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: ruby-app
+
+spec:
+  replicas: 2
+
+  selector:
+    matchLabels:
+      app: ruby-app
+
+  template:
+    metadata:
+      labels:
+        app: ruby-app
+
+    spec:
+      containers:
+        - name: ruby-app
+          image: docker.io/mizunoyuuki/ruby-app:v1
+
+          ports:
+            - containerPort: 3000
