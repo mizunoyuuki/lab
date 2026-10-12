@@ -1,6 +1,7 @@
 app = proc do |env|
   body = <<~TEXT
     method: #{env["REQUEST_METHOD"]}
+    pods: #{ENV["HOSTNAME"]}
     path: #{env["PATH_INFO"]}
     query: #{env["QUERY_STRING"]}
     user_agent: #{env["HTTP_USER_AGENT"]}
