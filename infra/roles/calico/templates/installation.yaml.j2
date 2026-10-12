@@ -2,9 +2,14 @@ apiVersion: operator.tigera.io/v1
 kind: Installation
 metadata:
   name: default
-
 spec:
   calicoNetwork:
+    bgp: Disabled
+
+    nodeAddressAutodetectionV4:
+      cidrs:
+        - "192.168.10.0/24"
+
     ipPools:
       - cidr: {{ calico_pod_cidr }}
         encapsulation: VXLAN
