@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
         - name: ruby-app
-          image: docker.io/mizunoyuuki/ruby-app:v1
+          image: docker.io/mizunoyuuki/ruby-app:v3
 
           ports:
             - containerPort: 3000
